@@ -1,295 +1,287 @@
-// الثوابت العامة
-const CONFIG = {
-    REFRESH_INTERVAL: 60000, // تحديث كل دقيقة
-    UPDATE_REMINDER: 3600000, // تذكير كل ساعة
-    API_ENDPOINTS: {
-        SALES_POINTS: '/api/sales-points',
-        NOTIFICATIONS: '/api/notifications',
-        STOCK: '/api/stock',
-        USERS: '/api/users'
-    }
+// المتغيرات العامة
+let currentUser = {
+    id: null,
+    username: '',
+    role: '', // 'admin', 'supervisor', 'salespoint'
+    name: ''
 };
 
-// حالة التطبيق
-const APP_STATE = {
-    currentUser: null,
-    notifications: [],
-    salesPoints: [],
-    lastUpdate: null
-};
+let notifications = [];
 
 document.addEventListener('DOMContentLoaded', () => {
-    initializeApp();
-});
-
-async function initializeApp() {
-    try {
-        // تحقق من تسجيل الدخول
-        await checkAuthentication();
-        
-        // تهيئة المكونات
-        initializeComponents();
-        
-        // تحميل البيانات الأولية
-        await loadInitialData();
-        
-        // بدء المؤقتات
-        startTimers();
-        
-    } catch (error) {
-        console.error('خطأ في تهيئة التطبيق:', error);
-        window.location.href = '/index.html';
-    }
-}
-
-function initializeComponents() {
+    // التحقق من تسجيل الدخول
+    checkAuthentication();
+    
     // تهيئة الأحداث
-    document.getElementById('logoutBtn').addEventListener('click', handleLogout);
-    document.getElementById('notificationBtn').addEventListener('click', toggleNotifications);
-    document.querySelector('.refresh-btn').addEventListener('click', refreshData);
+    initializeEventListeners();
     
-    // تهيئة النوافذ المنبثقة
-    initializeModals();
-    
-    // تحديث معلومات المستخدم
-    updateUserInfo();
-}
-
-function initializeModals() {
-    const modals = document.querySelectorAll('.modal');
-    const closeButtons = document.querySelectorAll('.close');
-    
-    closeButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            button.closest('.modal').style.display = 'none';
-        });
-    });
-    
-    window.addEventListener('click', (event) => {
-        modals.forEach(modal => {
-            if (event.target === modal) {
-                modal.style.display = 'none';
-            }
-        });
-    });
-}
-
-async function loadInitialData() {
-    try {
-        // تحميل نقاط البيع
-        const salesPointsData = await fetchSalesPoints();
-        updateSalesPointsTable(salesPointsData);
-        
-        // تحميل الإحصائيات
-        const statsData = await fetchStatistics();
-        updateDashboardStats(statsData);
-        
-        // تحميل التنبيهات
-        const notificationsData = await fetchNotifications();
-        updateNotifications(notificationsData);
-        
-    } catch (error) {
-        showToast('حدث خطأ في تحميل البيانات', 'error');
-    }
-}
-
-function startTimers() {
-    // تحديث الوقت
+    // تحديث الوقت كل ثانية
     setInterval(updateCurrentTime, 1000);
     
-    // تحديث البيانات
-    setInterval(refreshData, CONFIG.REFRESH_INTERVAL);
+    // تحقق من التحديثات كل ساعة
+    setInterval(checkForUpdates, 3600000);
     
-    // فحص التحديثات
-    setInterval(checkForUpdates, CONFIG.UPDATE_REMINDER);
+    // تحميل البيانات الأولية
+    loadInitialData();
+});
+
+function checkAuthentication() {
+    // التحقق من وجود token في localStorage
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+        window.location.href = 'index.html';
+        return;
+    }
+    
+    // تحميل بيانات المستخدم
+    currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    document.getElementById('userName').textContent = currentUser.name;
+    
+    // عرض/إخفاء عناصر القائمة حسب نوع المستخدم
+    updateMenuVisibility();
+}
+
+function updateMenuVisibility() {
+    const adminElements = document.querySelectorAll('.admin-only');
+    const supervisorElements = document.querySelectorAll('.supervisor-only');
+    const salespointElements = document.querySelectorAll('.salespoint-only');
+    
+    adminElements.forEach(el => {
+        el.style.display = currentUser.role === 'admin' ? 'block' : 'none';
+    });
+    
+    supervisorElements.forEach(el => {
+        el.style.display = currentUser.role === 'supervisor' ? 'block' : 'none';
+    });
+    
+    salespointElements.forEach(el => {
+        el.style.display = currentUser.role === 'salespoint' ? 'block' : 'none';
+    });
+}
+
+function initializeEventListeners() {
+    // زر تسجيل الخروج
+    document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+    
+    // زر التنبيهات
+    document.getElementById('notificationBtn').addEventListener('click', toggleNotifications);
+    
+    // زر تحديث البيانات
+    document.querySelector('.refresh-btn').addEventListener('click', refreshData);
+    
+    // إغلاق النافذة المنبثقة للتنبيهات
+    document.querySelector('.modal .close').addEventListener('click', () => {
+        document.getElementById('notificationModal').style.display = 'none';
+    });
 }
 
 function updateCurrentTime() {
     const now = new Date();
-    const timeString = now.toLocaleTimeString('ar-DZ', { hour12: false });
-    const dateString = now.toLocaleDateString('ar-DZ');
-    document.getElementById('currentTime').textContent = `${dateString} ${timeString}`;
-}
-
-function updateUserInfo() {
-    const userNameElement = document.getElementById('userName');
-    userNameElement.textContent = APP_STATE.currentUser?.name || 'مستخدم';
+    const options = {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+    };
     
-    // إظهار/إخفاء عناصر القائمة حسب الصلاحيات
-    const isAdmin = APP_STATE.currentUser?.role === 'admin';
-    document.getElementById('adminMenu').style.display = isAdmin ? 'block' : 'none';
-    document.getElementById('adminStockMenu').style.display = isAdmin ? 'block' : 'none';
+    document.getElementById('currentTime').textContent = now.toLocaleString('ar-DZ', options);
 }
 
-async function checkForUpdates() {
+function checkForUpdates() {
+    const salesPoints = getSalesPoints();
     const now = new Date();
-    APP_STATE.salesPoints.forEach(point => {
+    
+    salesPoints.forEach(point => {
         const lastUpdate = new Date(point.lastUpdate);
-        const hoursDiff = (now - lastUpdate) / (1000 * 60 * 60);
+        const hoursSinceUpdate = (now - lastUpdate) / (1000 * 60 * 60);
         
-        if (hoursDiff >= 1) {
-            // تذكير نقطة البيع
+        // تحديث كل ساعة
+        if (hoursSinceUpdate >= 1) {
             createNotification({
                 type: 'reminder',
-                target: point.id,
-                message: `يرجى تحديث بيانات نقطة البيع ${point.name}`
+                title: 'تذكير بالتحديث',
+                message: `يرجى تحديث بيانات نقطة البيع: ${point.name}`,
+                salesPoint: point.id,
+                severity: 'low'
             });
-            
-            if (hoursDiff >= 2) {
-                // إخطار المراقب
-                createNotification({
-                    type: 'warning',
-                    target: point.supervisorId,
-                    message: `نقطة البيع ${point.name} لم تحدث بياناتها منذ ${Math.floor(hoursDiff)} ساعة`
-                });
-                
-                if (hoursDiff >= 3) {
-                    // إخطار الأدمن
-                    createNotification({
-                        type: 'urgent',
-                        target: 'admin',
-                        message: `تحذير: نقطة البيع ${point.name} متوقفة عن التحديث`
-                    });
-                }
-            }
+        }
+        
+        // تأخر التحديث لمدة ساعتين
+        if (hoursSinceUpdate >= 2) {
+            createNotification({
+                type: 'warning',
+                title: 'تأخر التحديث',
+                message: `لم يتم تحديث بيانات نقطة البيع: ${point.name} منذ ساعتين`,
+                salesPoint: point.id,
+                severity: 'medium'
+            });
+        }
+        
+        // تأخر التحديث لمدة 3 ساعات
+        if (hoursSinceUpdate >= 3) {
+            createNotification({
+                type: 'alert',
+                title: 'تنبيه عاجل',
+                message: `تأخر حرج في تحديث بيانات نقطة البيع: ${point.name}`,
+                salesPoint: point.id,
+                severity: 'high'
+            });
         }
     });
 }
 
-async function createNotification(notificationData) {
-    try {
-        const response = await fetch(CONFIG.API_ENDPOINTS.NOTIFICATIONS, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(notificationData)
-        });
-        
-        if (response.ok) {
-            const notification = await response.json();
-            APP_STATE.notifications.push(notification);
-            updateNotificationBadge();
-            showToast(notification.message, notification.type);
-        }
-    } catch (error) {
-        console.error('خطأ في إنشاء التنبيه:', error);
-    }
-}
-
-function updateNotificationBadge() {
-    const badge = document.querySelector('.notification-badge');
-    const count = APP_STATE.notifications.filter(n => !n.read).length;
-    badge.textContent = count;
-    badge.style.display = count > 0 ? 'block' : 'none';
-}
-
-function showToast(message, type = 'info') {
-    const colors = {
-        info: '#7AB547',
-        warning: '#FFA500',
-        error: '#EF3340',
-        reminder: '#0066B3'
+function createNotification(notificationData) {
+    const notification = {
+        id: Date.now(),
+        timestamp: new Date().toISOString(),
+        ...notificationData,
+        read: false
     };
     
+    notifications.unshift(notification);
+    updateNotificationBadge();
+    showToast(notification);
+    
+    // إرسال التنبيه للمستخدمين المعنيين
+    sendNotificationToUsers(notification);
+}
+
+function showToast(notification) {
+    const backgroundColor = {
+        low: '#7AB547',
+        medium: '#FFA500',
+        high: '#EF3340'
+    }[notification.severity];
+    
     Toastify({
-        text: message,
+        text: notification.message,
         duration: 5000,
         gravity: "top",
         position: 'right',
-        backgroundColor: colors[type] || colors.info,
-        className: `toast-${type}`
+        backgroundColor,
+        onClick: () => showNotificationDetails(notification)
     }).showToast();
 }
 
-async function handleLogout() {
-    try {
-        const response = await fetch('/api/auth/logout', {
-            method: 'POST',
-            credentials: 'include'
-        });
-        
-        if (response.ok) {
-            window.location.href = '/index.html';
-        }
-    } catch (error) {
-        showToast('حدث خطأ في تسجيل الخروج', 'error');
+function updateNotificationBadge() {
+    const unreadCount = notifications.filter(n => !n.read).length;
+    const badge = document.querySelector('.notification-badge');
+    badge.textContent = unreadCount;
+    badge.style.display = unreadCount > 0 ? 'block' : 'none';
+}
+
+function toggleNotifications() {
+    const modal = document.getElementById('notificationModal');
+    if (modal.style.display === 'block') {
+        modal.style.display = 'none';
+    } else {
+        updateNotificationsList();
+        modal.style.display = 'block';
     }
 }
 
-// وظائف تحديث واجهة المستخدم
-function updateSalesPointsTable(data) {
-    const tbody = document.getElementById('salesPointsTable');
-    tbody.innerHTML = '';
-    
-    data.forEach(point => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td>${point.name}</td>
-            <td>${point.currentStock}</td>
-            <td>${new Date(point.lastUpdate).toLocaleString('ar-DZ')}</td>
-            <td>
-                <span class="status-badge ${point.status}">${getStatusText(point.status)}</span>
-            </td>
-            <td>
-                <button onclick="viewDetails(${point.id})" class="btn-action">
-                    <i class="fas fa-eye"></i>
-                </button>
-                ${APP_STATE.currentUser?.role === 'admin' ? `
-                    <button onclick="editPoint(${point.id})" class="btn-action">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                ` : ''}
-            </td>
-        `;
-        tbody.appendChild(tr);
+function updateNotificationsList() {
+    const container = document.getElementById('notificationsList');
+    container.innerHTML = notifications
+        .map(notification => `
+            <div class="notification-item ${notification.read ? 'read' : 'unread'}" 
+                 data-id="${notification.id}">
+                <div class="notification-header">
+                    <span class="notification-title">${notification.title}</span>
+                    <span class="notification-time">
+                        ${new Date(notification.timestamp).toLocaleString('ar-DZ')}
+                    </span>
+                </div>
+                <div class="notification-message">${notification.message}</div>
+            </div>
+        `)
+        .join('');
+}
+
+function handleLogout() {
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('currentUser');
+    window.location.href = 'index.html';
+}
+
+function refreshData() {
+    loadSalesPointsData();
+    loadStockData();
+    showToast({
+        message: 'تم تحديث البيانات بنجاح',
+        severity: 'low'
     });
 }
 
+// وظائف مساعدة للتعامل مع البيانات
+function getSalesPoints() {
+    // في الإصدار النهائي، هذه الوظيفة ستجلب البيانات من الخادم
+    return JSON.parse(localStorage.getItem('salesPoints')) || [];
+}
+
+function loadInitialData() {
+    loadSalesPointsData();
+    loadStockData();
+    loadNotifications();
+}
+
+function loadSalesPointsData() {
+    const salesPoints = getSalesPoints();
+    const tableBody = document.getElementById('salesPointsTable');
+    
+    tableBody.innerHTML = salesPoints
+        .map(point => `
+            <tr>
+                <td>${point.name}</td>
+                <td>${point.currentStock}</td>
+                <td>${new Date(point.lastUpdate).toLocaleString('ar-DZ')}</td>
+                <td>
+                    <span class="status-badge ${point.status}">
+                        ${getStatusText(point.status)}
+                    </span>
+                </td>
+                <td>
+                    <button onclick="viewDetails(${point.id})" class="action-btn">
+                        عرض التفاصيل
+                    </button>
+                </td>
+            </tr>
+        `)
+        .join('');
+}
+
 function getStatusText(status) {
-    const statuses = {
+    const statusMap = {
         active: 'نشط',
         warning: 'تحذير',
-        inactive: 'غير نشط'
+        critical: 'حرج'
     };
-    return statuses[status] || status;
+    return statusMap[status] || status;
 }
 
-function updateDashboardStats(stats) {
-    document.getElementById('totalSalesPoints').textContent = stats.totalPoints;
-    document.getElementById('totalStock').textContent = stats.totalStock;
-    document.getElementById('pendingUpdates').textContent = stats.pendingUpdates;
+function loadStockData() {
+    const salesPoints = getSalesPoints();
+    document.getElementById('totalSalesPoints').textContent = salesPoints.length;
+    document.getElementById('totalStock').textContent = salesPoints.reduce((sum, point) => sum + point.currentStock, 0);
+    document.getElementById('pendingUpdates').textContent = salesPoints.filter(point => {
+        const lastUpdate = new Date(point.lastUpdate);
+        const now = new Date();
+        return (now - lastUpdate) / (1000 * 60 * 60) >= 1;
+    }).length;
 }
 
-// وظائف جلب البيانات
-async function fetchSalesPoints() {
-    const response = await fetch(CONFIG.API_ENDPOINTS.SALES_POINTS);
-    if (!response.ok) throw new Error('فشل جلب بيانات نقاط البيع');
-    return await response.json();
+function viewDetails(pointId) {
+    // سيتم تنفيذها لاحقاً
+    console.log('عرض تفاصيل نقطة البيع:', pointId);
 }
 
-async function fetchStatistics() {
-    const response = await fetch('/api/statistics');
-    if (!response.ok) throw new Error('فشل جلب الإحصائيات');
-    return await response.json();
+// تهيئة النظام عند بدء التشغيل
+function initializeDashboard() {
+    checkAuthentication();
+    loadInitialData();
+    updateCurrentTime();
 }
-
-async function fetchNotifications() {
-    const response = await fetch(CONFIG.API_ENDPOINTS.NOTIFICATIONS);
-    if (!response.ok) throw new Error('فشل جلب التنبيهات');
-    return await response.json();
-}
-
-async function refreshData() {
-    try {
-        await loadInitialData();
-        showToast('تم تحديث البيانات بنجاح', 'info');
-    } catch (error) {
-        showToast('فشل تحديث البيانات', 'error');
-    }
-}
-
-// تصدير الوظائف للاستخدام العام
-window.viewDetails = viewDetails;
-window.editPoint = editPoint;
-window.toggleNotifications = toggleNotifications;
