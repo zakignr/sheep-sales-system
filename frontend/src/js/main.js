@@ -1,123 +1,108 @@
 document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('loginForm');
     const errorMessage = document.getElementById('errorMessage');
+    const userTypeGroup = document.getElementById('userTypeGroup');
+    const userNumber = document.getElementById('userNumber');
+    const numberLabel = document.getElementById('numberLabel');
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    let currentRole = 'admin';
 
-    // بيانات المستخدمين
+    // تكوين قائمة المستخدمين
     const users = {
-        // الأدمن الرئيسي
-        'admin': {
+        admin: {
             password: 'admin123',
             role: 'admin',
-            name: 'المدير الرئيسي',
-            id: 1
+            name: 'المدير الرئيسي'
         },
-        // المراقبين الأربعة
-        'supervisor1': {
-            password: 'super123',
-            role: 'supervisor',
-            name: 'المراقب الأول',
-            id: 2
+        supervisors: {
+            1: { password: 'super123', name: 'المراقب الأول' },
+            2: { password: 'super123', name: 'المراقب الثاني' },
+            3: { password: 'super123', name: 'المراقب الثالث' },
+            4: { password: 'super123', name: 'المراقب الرابع' }
         },
-        'supervisor2': {
-            password: 'super123',
-            role: 'supervisor',
-            name: 'المراقب الثاني',
-            id: 3
-        },
-        'supervisor3': {
-            password: 'super123',
-            role: 'supervisor',
-            name: 'المراقب الثالث',
-            id: 4
-        },
-        'supervisor4': {
-            password: 'super123',
-            role: 'supervisor',
-            name: 'المراقب الرابع',
-            id: 5
-        },
-        // نقاط البيع الثمانية
-        'sale1': {
-            password: 'sale123',
-            role: 'salespoint',
-            name: 'نقطة البيع 1',
-            id: 6
-        },
-        'sale2': {
-            password: 'sale123',
-            role: 'salespoint',
-            name: 'نقطة البيع 2',
-            id: 7
-        },
-        'sale3': {
-            password: 'sale123',
-            role: 'salespoint',
-            name: 'نقطة البيع 3',
-            id: 8
-        },
-        'sale4': {
-            password: 'sale123',
-            role: 'salespoint',
-            name: 'نقطة البيع 4',
-            id: 9
-        },
-        'sale5': {
-            password: 'sale123',
-            role: 'salespoint',
-            name: 'نقطة البيع 5',
-            id: 10
-        },
-        'sale6': {
-            password: 'sale123',
-            role: 'salespoint',
-            name: 'نقطة البيع 6',
-            id: 11
-        },
-        'sale7': {
-            password: 'sale123',
-            role: 'salespoint',
-            name: 'نقطة البيع 7',
-            id: 12
-        },
-        'sale8': {
-            password: 'sale123',
-            role: 'salespoint',
-            name: 'نقطة البيع 8',
-            id: 13
+        salespoints: {
+            1: { password: 'sale123', name: 'نقطة البيع 1' },
+            2: { password: 'sale123', name: 'نقطة البيع 2' },
+            3: { password: 'sale123', name: 'نقطة البيع 3' },
+            4: { password: 'sale123', name: 'نقطة البيع 4' },
+            5: { password: 'sale123', name: 'نقطة البيع 5' },
+            6: { password: 'sale123', name: 'نقطة البيع 6' },
+            7: { password: 'sale123', name: 'نقطة البيع 7' },
+            8: { password: 'sale123', name: 'نقطة البيع 8' }
         }
     };
 
+    // إدارة النقر على التبويبات
+    tabButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            tabButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentRole = btn.dataset.role;
+            updateUserNumberSelect(currentRole);
+        });
+    });
+
+    function updateUserNumberSelect(role) {
+        userTypeGroup.style.display = role === 'admin' ? 'none' : 'block';
+        userNumber.innerHTML = '';
+
+        if (role === 'supervisor') {
+            numberLabel.textContent = 'رقم المراقب';
+            for (let i = 1; i <= 4; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = `المراقب ${i}`;
+                userNumber.appendChild(option);
+            }
+        } else if (role === 'salespoint') {
+            numberLabel.textContent = 'رقم نقطة البيع';
+            for (let i = 1; i <= 8; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = `نقطة البيع ${i}`;
+                userNumber.appendChild(option);
+            }
+        }
+    }
+
     loginForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        
-        const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
+        let user;
+        let redirectPage;
 
-        const user = users[username];
-        if (user && user.password === password) {
-            // تخزين بيانات المستخدم
+        if (currentRole === 'admin') {
+            user = users.admin;
+            if (user.password === password) {
+                redirectPage = 'admin-dashboard.html';
+            }
+        } else if (currentRole === 'supervisor') {
+            const supervisorNumber = userNumber.value;
+            user = users.supervisors[supervisorNumber];
+            if (user && user.password === password) {
+                redirectPage = 'supervisor-dashboard.html';
+            }
+        } else if (currentRole === 'salespoint') {
+            const pointNumber = userNumber.value;
+            user = users.salespoints[pointNumber];
+            if (user && user.password === password) {
+                redirectPage = 'salespoint-dashboard.html';
+            }
+        }
+
+        if (redirectPage) {
             localStorage.setItem('currentUser', JSON.stringify({
-                username,
-                role: user.role,
+                role: currentRole,
+                number: currentRole === 'admin' ? null : userNumber.value,
                 name: user.name,
-                id: user.id,
                 loginTime: new Date().toISOString()
             }));
-            
-            // توجيه المستخدم إلى اللوحة المناسبة
-            switch(user.role) {
-                case 'admin':
-                    window.location.href = 'admin-dashboard.html';
-                    break;
-                case 'supervisor':
-                    window.location.href = 'supervisor-dashboard.html';
-                    break;
-                case 'salespoint':
-                    window.location.href = 'salespoint-dashboard.html';
-                    break;
-            }
+            window.location.href = redirectPage;
         } else {
-            errorMessage.textContent = 'اسم المستخدم أو كلمة المرور غير صحيحة';
+            errorMessage.textContent = 'كلمة المرور غير صحيحة';
         }
     });
+
+    // تحديد التبويب الافتراضي
+    updateUserNumberSelect('admin');
 });
