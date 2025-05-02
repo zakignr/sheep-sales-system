@@ -1,105 +1,112 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // التحقق من تسجيل الدخول
-    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-    if (!currentUser) {
-        window.location.href = 'index.html';
-        return;
-    }
+    const loginForm = document.getElementById('loginForm');
+    const errorMessage = document.getElementById('errorMessage');
 
-    // تحديث اسم المستخدم
-    document.getElementById('userName').textContent = currentUser.name;
+    // بيانات المستخدمين الفعلية
+    const users = {
+        // الأدمن الرئيسي
+        'admin': {
+            password: 'admin123',
+            role: 'admin',
+            name: 'المدير الرئيسي',
+            id: 1
+        },
+        // المراقبين الأربعة
+        'supervisor1': {
+            password: 'super123',
+            role: 'supervisor',
+            name: 'المراقب الأول',
+            id: 2
+        },
+        'supervisor2': {
+            password: 'super123',
+            role: 'supervisor',
+            name: 'المراقب الثاني',
+            id: 3
+        },
+        'supervisor3': {
+            password: 'super123',
+            role: 'supervisor',
+            name: 'المراقب الثالث',
+            id: 4
+        },
+        'supervisor4': {
+            password: 'super123',
+            role: 'supervisor',
+            name: 'المراقب الرابع',
+            id: 5
+        },
+        // نقاط البيع الثمانية
+        'sale1': {
+            password: 'sale123',
+            role: 'salespoint',
+            name: 'نقطة البيع 1',
+            id: 6
+        },
+        'sale2': {
+            password: 'sale123',
+            role: 'salespoint',
+            name: 'نقطة البيع 2',
+            id: 7
+        },
+        'sale3': {
+            password: 'sale123',
+            role: 'salespoint',
+            name: 'نقطة البيع 3',
+            id: 8
+        },
+        'sale4': {
+            password: 'sale123',
+            role: 'salespoint',
+            name: 'نقطة البيع 4',
+            id: 9
+        },
+        'sale5': {
+            password: 'sale123',
+            role: 'salespoint',
+            name: 'نقطة البيع 5',
+            id: 10
+        },
+        'sale6': {
+            password: 'sale123',
+            role: 'salespoint',
+            name: 'نقطة البيع 6',
+            id: 11
+        },
+        'sale7': {
+            password: 'sale123',
+            role: 'salespoint',
+            name: 'نقطة البيع 7',
+            id: 12
+        },
+        'sale8': {
+            password: 'sale123',
+            role: 'salespoint',
+            name: 'نقطة البيع 8',
+            id: 13
+        }
+    };
 
-    // تهيئة الأحداث
-    initializeEvents();
-    
-    // تحديث الوقت
-    updateCurrentTime();
-    setInterval(updateCurrentTime, 1000);
-
-    // تحميل البيانات الأولية
-    loadDashboardData();
-
-    // عرض/إخفاء عناصر القائمة حسب نوع المستخدم
-    updateMenuVisibility(currentUser.role);
-});
-
-function initializeEvents() {
-    // زر تسجيل الخروج
-    document.getElementById('logoutBtn').addEventListener('click', (e) => {
+    loginForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        localStorage.removeItem('currentUser');
-        window.location.href = 'index.html';
+        
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+
+        const user = users[username];
+        if (user && user.password === password) {
+            // تخزين بيانات المستخدم
+            localStorage.setItem('currentUser', JSON.stringify({
+                username,
+                role: user.role,
+                name: user.name,
+                id: user.id,
+                loginTime: new Date().toISOString()
+            }));
+            
+            window.location.href = 'dashboard.html';
+        } else {
+            errorMessage.textContent = 'اسم المستخدم أو كلمة المرور غير صحيحة';
+        }
     });
-
-    // زر تحديث البيانات
-    document.querySelector('.refresh-btn').addEventListener('click', () => {
-        loadDashboardData();
-    });
-}
-
-function updateCurrentTime() {
-    const now = new Date();
-    const timeString = now.toLocaleTimeString('ar-DZ');
-    const dateString = now.toLocaleDateString('ar-DZ');
-    document.getElementById('currentTime').textContent = `${dateString} ${timeString}`;
-}
-
-function updateMenuVisibility(role) {
-    const adminElements = document.querySelectorAll('#adminMenu, #adminStockMenu');
-    adminElements.forEach(el => {
-        el.style.display = role === 'admin' ? 'block' : 'none';
-    });
-}
-
-function loadDashboardData() {
-    // بيانات تجريبية
-    const mockData = {
-        totalSalesPoints: 5,
-        totalStock: 150,
-        pendingUpdates: 2,
-        salesPoints: [
-            {
-                name: 'نقطة البيع 1',
-                stock: 30,
-                lastUpdate: '2025-05-02 05:30:00',
-                status: 'active'
-            },
-            {
-                name: 'نقطة البيع 2',
-                stock: 25,
-                lastUpdate: '2025-05-02 04:15:00',
-                status: 'warning'
-            }
-        ]
-    };
-
-    // تحديث الإحصائيات
-    document.getElementById('totalSalesPoints').textContent = mockData.totalSalesPoints;
-    document.getElementById('totalStock').textContent = mockData.totalStock;
-    document.getElementById('pendingUpdates').textContent = mockData.pendingUpdates;
-
-    // تحديث جدول نقاط البيع
-    const tableBody = document.getElementById('salesPointsTable');
-    tableBody.innerHTML = mockData.salesPoints.map(point => `
-        <tr>
-            <td>${point.name}</td>
-            <td>${point.stock}</td>
-            <td>${point.lastUpdate}</td>
-            <td><span class="status status-${point.status}">
-                ${getStatusText(point.status)}
-            </span></td>
-            <td>
-                <button class="btn-action">عرض التفاصيل</button>
-            </td>
-        </tr>
-    `).join('');
-}
-
-function getStatusText(status) {
-    const statusMap = {
-        active: 'نشط',
-        warning: 'تحذير',
-        critical: 'حرج'
-    };
-    return statusMap[status] || status;
-}
+});
