@@ -1,31 +1,46 @@
-// تكوين عنوان API
-const API_BASE_URL = window.location.hostname === 'localhost' 
-  ? 'http://localhost:3000'
-  : 'https://sheep-sales-system.onrender.com';
+document.addEventListener('DOMContentLoaded', () => {
+    const loginForm = document.getElementById('loginForm');
+    const errorMessage = document.getElementById('errorMessage');
 
-// تحديث وظائف الطلبات
-async function makeRequest(endpoint, options = {}) {
-    const defaultOptions = {
-        headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
+    // بيانات مؤقتة للتجربة
+    const tempUsers = {
+        'admin': {
+            password: 'admin123',
+            role: 'admin',
+            name: 'المدير'
         },
-        credentials: 'include'
+        'supervisor': {
+            password: 'super123',
+            role: 'supervisor',
+            name: 'المراقب'
+        },
+        'salespoint': {
+            password: 'sales123',
+            role: 'salespoint',
+            name: 'نقطة البيع'
+        }
     };
 
-    try {
-        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-            ...defaultOptions,
-            ...options
-        });
+    loginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
 
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+        // التحقق من المستخدم (مؤقتاً)
+        const user = tempUsers[username];
+        if (user && user.password === password) {
+            // تخزين بيانات المستخدم
+            localStorage.setItem('currentUser', JSON.stringify({
+                username,
+                role: user.role,
+                name: user.name
+            }));
+            
+            // توجيه المستخدم إلى لوحة التحكم
+            window.location.href = 'dashboard.html';
+        } else {
+            errorMessage.textContent = 'اسم المستخدم أو كلمة المرور غير صحيحة';
         }
-
-        return await response.json();
-    } catch (error) {
-        console.error('API request failed:', error);
-        throw error;
-    }
-}
+    });
+});
