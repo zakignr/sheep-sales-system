@@ -42,11 +42,6 @@ body {
     margin-bottom: 2rem;
 }
 
-.login-logo img {
-    max-width: 200px;
-    height: auto;
-}
-
 .login-form {
     display: flex;
     flex-direction: column;
