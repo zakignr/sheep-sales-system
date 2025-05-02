@@ -8,13 +8,149 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
+    <style>
+        :root {
+            --primary-green: #7AB547;
+            --secondary-blue: #0066B3;
+            --dark-green: #0B8142;
+            --white: #FFFFFF;
+            --red: #EF3340;
+            --gray-light: #F5F5F5;
+            --gray-dark: #333333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        body {
+            direction: rtl;
+            background: linear-gradient(135deg, var(--primary-green) 0%, var(--secondary-blue) 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+        }
+
+        .login-card {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .login-logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-logo img {
+            max-width: 200px;
+            height: auto;
+        }
+
+        .login-tabs {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            background: var(--gray-light);
+            padding: 0.5rem;
+            border-radius: 5px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            background: none;
+            color: var(--gray-dark);
+            font-family: 'Cairo', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 4px;
+        }
+
+        .tab-btn.active {
+            background: var(--primary-green);
+            color: white;
+        }
+
+        .tab-btn:hover:not(.active) {
+            background: rgba(0,0,0,0.1);
+        }
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group label {
+            color: var(--gray-dark);
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: var(--primary-green);
+            outline: none;
+        }
+
+        .btn-login {
+            background-color: var(--primary-green);
+            color: var(--white);
+            padding: 0.75rem;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-login:hover {
+            background-color: var(--dark-green);
+        }
+
+        .error-message {
+            color: var(--red);
+            text-align: center;
+            font-size: 0.875rem;
+            min-height: 20px;
+        }
+    </style>
 </head>
 <body>
     <div class="login-container">
         <div class="login-card">
             <div class="login-logo">
-                <img src="assets/images/logo.png" alt="شعار النظام" style="max-width: 200px;">
+                <img src="logo.png" alt="شعار النظام" style="max-width: 200px;">
             </div>
             <div class="login-tabs">
                 <button class="tab-btn active" data-role="admin">مدير النظام</button>
@@ -37,6 +173,115 @@
             </form>
         </div>
     </div>
-    <script src="js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginForm = document.getElementById('loginForm');
+            const errorMessage = document.getElementById('errorMessage');
+            const userTypeGroup = document.getElementById('userTypeGroup');
+            const userNumber = document.getElementById('userNumber');
+            const numberLabel = document.getElementById('numberLabel');
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            let currentRole = 'admin';
+
+            // تكوين قائمة المستخدمين
+            const users = {
+                admin: {
+                    password: 'admin123',
+                    role: 'admin',
+                    name: 'المدير الرئيسي'
+                },
+                supervisors: {
+                    1: { password: 'super123', name: 'المراقب الأول' },
+                    2: { password: 'super123', name: 'المراقب الثاني' },
+                    3: { password: 'super123', name: 'المراقب الثالث' },
+                    4: { password: 'super123', name: 'المراقب الرابع' }
+                },
+                salespoints: {
+                    1: { password: 'sale123', name: 'نقطة البيع 1' },
+                    2: { password: 'sale123', name: 'نقطة البيع 2' },
+                    3: { password: 'sale123', name: 'نقطة البيع 3' },
+                    4: { password: 'sale123', name: 'نقطة البيع 4' },
+                    5: { password: 'sale123', name: 'نقطة البيع 5' },
+                    6: { password: 'sale123', name: 'نقطة البيع 6' },
+                    7: { password: 'sale123', name: 'نقطة البيع 7' },
+                    8: { password: 'sale123', name: 'نقطة البيع 8' }
+                }
+            };
+
+            // إدارة النقر على التبويبات
+            tabButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    tabButtons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentRole = btn.dataset.role;
+                    updateUserNumberSelect(currentRole);
+                });
+            });
+
+            function updateUserNumberSelect(role) {
+                userTypeGroup.style.display = role === 'admin' ? 'none' : 'block';
+                userNumber.innerHTML = '';
+
+                if (role === 'supervisor') {
+                    numberLabel.textContent = 'رقم المراقب';
+                    for (let i = 1; i <= 4; i++) {
+                        const option = document.createElement('option');
+                        option.value = i;
+                        option.textContent = `المراقب ${i}`;
+                        userNumber.appendChild(option);
+                    }
+                } else if (role === 'salespoint') {
+                    numberLabel.textContent = 'رقم نقطة البيع';
+                    for (let i = 1; i <= 8; i++) {
+                        const option = document.createElement('option');
+                        option.value = i;
+                        option.textContent = `نقطة البيع ${i}`;
+                        userNumber.appendChild(option);
+                    }
+                }
+            }
+
+            loginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const password = document.getElementById('password').value;
+                let user;
+                let redirectPage;
+
+                if (currentRole === 'admin') {
+                    user = users.admin;
+                    if (user.password === password) {
+                        redirectPage = 'admin-dashboard.html';
+                    }
+                } else if (currentRole === 'supervisor') {
+                    const supervisorNumber = userNumber.value;
+                    user = users.supervisors[supervisorNumber];
+                    if (user && user.password === password) {
+                        redirectPage = 'supervisor-dashboard.html';
+                    }
+                } else if (currentRole === 'salespoint') {
+                    const pointNumber = userNumber.value;
+                    user = users.salespoints[pointNumber];
+                    if (user && user.password === password) {
+                        redirectPage = 'salespoint-dashboard.html';
+                    }
+                }
+
+                if (redirectPage) {
+                    localStorage.setItem('currentUser', JSON.stringify({
+                        role: currentRole,
+                        number: currentRole === 'admin' ? null : userNumber.value,
+                        name: user.name,
+                        loginTime: new Date().toISOString()
+                    }));
+                    window.location.href = redirectPage;
+                } else {
+                    errorMessage.textContent = 'كلمة المرور غير صحيحة';
+                }
+            });
+
+            // تحديد التبويب الافتراضي
+            updateUserNumberSelect('admin');
+        });
+    </script>
 </body>
 </html>
