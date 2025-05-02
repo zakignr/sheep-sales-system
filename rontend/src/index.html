@@ -3,19 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <title>نظام إدارة بيع الكباش</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="animations.css">
 </head>
 <body>
     <div class="login-container">
         <div class="login-card">
             <div class="login-logo">
-                <img src="assets/images/logo/logo.png" alt="شعار النظام">
+                <img src="logo.png" alt="شعار النظام" style="max-width: 200px;">
             </div>
-            <form id="loginForm">
+            <form id="loginForm" class="login-form">
                 <div class="form-group">
                     <label for="username">اسم المستخدم</label>
                     <input type="text" id="username" name="username" required>
@@ -29,6 +31,6 @@
             </form>
         </div>
     </div>
-    <script src="js/main.js"></script>
+    <script src="main.js"></script>
 </body>
 </html>
