@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة تحكم نقطة البيع - نظام إدارة بيع الكباش</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+<body class="dashboard-body">
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <img src="logo.png" alt="شعار النظام" style="max-width: 150px;">
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="active"><a href="#overview">الرئيسية</a></li>
+                    <li><a href="#stock">تحديث المخزون</a></li>
+                    <li><a href="#history">سجل التحديثات</a></li>
+                    <li><a href="#" id="logoutBtn">تسجيل الخروج</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="main-header">
+                <div class="header-content">
+                    <h1>لوحة تحكم نقطة البيع</h1>
+                    <div class="user-info">
+                        <span id="currentTime"></span>
+                        <span class="username" id="userName"></span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="dashboard-stats">
+                <div class="stat-card">
+                    <h3>المخزون الحالي</h3>
+                    <p id="currentStock">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>آخر تحديث</h3>
+                    <p id="lastUpdate">-</p>
+                </div>
+                <div class="stat-card">
+                    <h3>المراقب المسؤول</h3>
+                    <p id="supervisorName">-</p>
+                </div>
+            </div>
+
+            <div class="content-section">
+                <div class="section-header">
+                    <h2>تحديث المخزون</h2>
+                </div>
+                <div class="update-form">
+                    <form id="stockUpdateForm">
+                        <div class="form-group">
+                            <label for="newStock">عدد الكباش الحالي</label>
+                            <input type="number" id="newStock" name="newStock" required min="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="notes">ملاحظات</label>
+                            <textarea id="notes" name="notes" rows="3"></textarea>
+                        </div>
+                        <button type="submit" class="btn-primary">تحديث المخزون</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="content-section">
+                <div class="section-header">
+                    <h2>سجل التحديثات</h2>
+                </div>
+                <div class="data-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>التاريخ والوقت</th>
+                                <th>المخزون السابق</th>
+                                <th>المخزون الجديد</th>
+                                <th>التغيير</th>
+                                <th>ملاحظات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="updateHistoryTable">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="salespoint.js"></script>
+</body>
+</html>
