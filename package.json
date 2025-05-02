@@ -1,0 +1,16 @@
+{
+  "name": "sheep-sales-system",
+  "version": "1.0.0",
+  "description": "نظام إدارة بيع الكباش",
+  "main": "index.js",
+  "scripts": {
+    "start": "serve -s frontend/src",
+    "build": "echo 'No build step required for static files'"
+  },
+  "dependencies": {
+    "serve": "^14.2.0"
+  },
+  "engines": {
+    "node": ">=18.12.0"
+  }
+}
