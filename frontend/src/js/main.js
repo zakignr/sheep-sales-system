@@ -2,22 +2,88 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('loginForm');
     const errorMessage = document.getElementById('errorMessage');
 
-    // بيانات مؤقتة للتجربة
-    const tempUsers = {
+    // بيانات المستخدمين الفعلية
+    const users = {
+        // الأدمن الرئيسي
         'admin': {
             password: 'admin123',
             role: 'admin',
-            name: 'المدير'
+            name: 'المدير الرئيسي',
+            id: 1
         },
-        'supervisor': {
+        // المراقبين الأربعة
+        'supervisor1': {
             password: 'super123',
             role: 'supervisor',
-            name: 'المراقب'
+            name: 'المراقب الأول',
+            id: 2
         },
-        'salespoint': {
-            password: 'sales123',
+        'supervisor2': {
+            password: 'super123',
+            role: 'supervisor',
+            name: 'المراقب الثاني',
+            id: 3
+        },
+        'supervisor3': {
+            password: 'super123',
+            role: 'supervisor',
+            name: 'المراقب الثالث',
+            id: 4
+        },
+        'supervisor4': {
+            password: 'super123',
+            role: 'supervisor',
+            name: 'المراقب الرابع',
+            id: 5
+        },
+        // نقاط البيع الثمانية
+        'sale1': {
+            password: 'sale123',
             role: 'salespoint',
-            name: 'نقطة البيع'
+            name: 'نقطة البيع 1',
+            id: 6
+        },
+        'sale2': {
+            password: 'sale123',
+            role: 'salespoint',
+            name: 'نقطة البيع 2',
+            id: 7
+        },
+        'sale3': {
+            password: 'sale123',
+            role: 'salespoint',
+            name: 'نقطة البيع 3',
+            id: 8
+        },
+        'sale4': {
+            password: 'sale123',
+            role: 'salespoint',
+            name: 'نقطة البيع 4',
+            id: 9
+        },
+        'sale5': {
+            password: 'sale123',
+            role: 'salespoint',
+            name: 'نقطة البيع 5',
+            id: 10
+        },
+        'sale6': {
+            password: 'sale123',
+            role: 'salespoint',
+            name: 'نقطة البيع 6',
+            id: 11
+        },
+        'sale7': {
+            password: 'sale123',
+            role: 'salespoint',
+            name: 'نقطة البيع 7',
+            id: 12
+        },
+        'sale8': {
+            password: 'sale123',
+            role: 'salespoint',
+            name: 'نقطة البيع 8',
+            id: 13
         }
     };
 
@@ -27,17 +93,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
 
-        // التحقق من المستخدم (مؤقتاً)
-        const user = tempUsers[username];
+        const user = users[username];
         if (user && user.password === password) {
             // تخزين بيانات المستخدم
             localStorage.setItem('currentUser', JSON.stringify({
                 username,
                 role: user.role,
-                name: user.name
+                name: user.name,
+                id: user.id,
+                loginTime: new Date().toISOString()
             }));
             
-            // توجيه المستخدم إلى لوحة التحكم
             window.location.href = 'dashboard.html';
         } else {
             errorMessage.textContent = 'اسم المستخدم أو كلمة المرور غير صحيحة';
