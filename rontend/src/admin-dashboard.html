@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة تحكم المدير - نظام إدارة بيع الكباش</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+<body class="dashboard-body">
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <img src="logo.png" alt="شعار النظام" style="max-width: 150px;">
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="active"><a href="#overview">الرئيسية</a></li>
+                    <li><a href="#managers">إدارة المراقبين</a></li>
+                    <li><a href="#salespoints">إدارة نقاط البيع</a></li>
+                    <li><a href="#stock">إدارة المخزون</a></li>
+                    <li><a href="#reports">التقارير</a></li>
+                    <li><a href="#notifications">التنبيهات</a></li>
+                    <li><a href="#" id="logoutBtn">تسجيل الخروج</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="main-header">
+                <div class="header-content">
+                    <h1>لوحة تحكم المدير</h1>
+                    <div class="user-info">
+                        <span id="currentTime"></span>
+                        <span class="username" id="userName"></span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="dashboard-stats">
+                <div class="stat-card">
+                    <h3>إجمالي المراقبين</h3>
+                    <p id="totalSupervisors">4</p>
+                </div>
+                <div class="stat-card">
+                    <h3>إجمالي نقاط البيع</h3>
+                    <p id="totalSalesPoints">8</p>
+                </div>
+                <div class="stat-card">
+                    <h3>إجمالي المخزون</h3>
+                    <p id="totalStock">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>التحديثات المطلوبة</h3>
+                    <p id="pendingUpdates">0</p>
+                </div>
+            </div>
+
+            <div class="content-section">
+                <div class="section-header">
+                    <h2>حالة نقاط البيع</h2>
+                    <button class="refresh-btn" onclick="refreshData()">تحديث البيانات</button>
+                </div>
+                <div class="data-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>نقطة البيع</th>
+                                <th>المخزون الحالي</th>
+                                <th>المراقب المسؤول</th>
+                                <th>آخر تحديث</th>
+                                <th>الحالة</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="salesPointsTable">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="content-section">
+                <div class="section-header">
+                    <h2>المراقبون</h2>
+                </div>
+                <div class="data-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>اسم المراقب</th>
+                                <th>عدد نقاط البيع</th>
+                                <th>آخر تسجيل دخول</th>
+                                <th>الحالة</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="supervisorsTable">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="admin.js"></script>
+</body>
+</html>
