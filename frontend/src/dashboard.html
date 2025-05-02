@@ -7,15 +7,14 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="dashboard.css">
 </head>
 <body class="dashboard-body">
     <div class="dashboard-container">
-        <!-- القائمة الجانبية -->
         <aside class="sidebar">
             <div class="sidebar-logo">
-                <img src="assets/images/logo/logo.png" alt="شعار النظام">
+                <img src="logo.png" alt="شعار النظام" style="max-width: 150px;">
             </div>
             <nav class="sidebar-nav">
                 <ul>
@@ -29,7 +28,6 @@
             </nav>
         </aside>
 
-        <!-- المحتوى الرئيسي -->
         <main class="main-content">
             <header class="main-header">
                 <div class="header-content">
@@ -73,14 +71,12 @@
                             </tr>
                         </thead>
                         <tbody id="salesPointsTable">
-                            <!-- سيتم ملء هذا الجزء بواسطة JavaScript -->
                         </tbody>
                     </table>
                 </div>
             </div>
         </main>
     </div>
-
-    <script src="js/dashboard.js"></script>
+    <script src="dashboard.js"></script>
 </body>
 </html>
