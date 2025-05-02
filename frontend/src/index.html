@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
-    <meta http-equiv="X-Frame-Options" content="DENY">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://sheep-sales-system.onrender.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://sheep-sales-system.onrender.com;">
     <title>نظام إدارة بيع الكباش</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,7 +17,7 @@
             <div class="login-logo">
                 <img src="assets/images/logo/logo.png" alt="شعار النظام">
             </div>
-            <form id="loginForm">
+            <form id="loginForm" class="login-form">
                 <div class="form-group">
                     <label for="username">اسم المستخدم</label>
                     <input type="text" id="username" name="username" required>
