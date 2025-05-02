@@ -6,12 +6,6 @@
     --red: #EF3340;
     --gray-light: #F5F5F5;
     --gray-dark: #333333;
-    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
-    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
-    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
-    --radius-sm: 5px;
-    --radius-md: 10px;
-    --radius-lg: 15px;
 }
 
 * {
@@ -23,166 +17,85 @@
 
 body {
     direction: rtl;
-    background-color: var(--gray-light);
-    color: var(--gray-dark);
-    line-height: 1.6;
-}
-
-/* زر عام */
-.btn {
-    padding: 0.75rem 1.5rem;
-    border: none;
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    display: inline-flex;
+    background: linear-gradient(135deg, var(--primary-green) 0%, var(--secondary-blue) 100%);
+    min-height: 100vh;
+    display: flex;
     align-items: center;
     justify-content: center;
+}
+
+.login-container {
+    width: 100%;
+    max-width: 400px;
+    padding: 20px;
+}
+
+.login-card {
+    background: var(--white);
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.login-logo {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.login-logo img {
+    max-width: 200px;
+    height: auto;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
     gap: 0.5rem;
 }
 
-.btn-primary {
-    background-color: var(--primary-green);
-    color: var(--white);
-}
-
-.btn-primary:hover {
-    background-color: var(--dark-green);
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-md);
-}
-
-/* البطاقات */
-.card {
-    background-color: var(--white);
-    border-radius: var(--radius-md);
-    padding: 1.5rem;
-    box-shadow: var(--shadow-sm);
-    transition: all 0.3s ease;
-}
-
-.card:hover {
-    box-shadow: var(--shadow-md);
-    transform: translateY(-2px);
-}
-
-/* الجداول */
-.table-container {
-    overflow-x: auto;
-    background-color: var(--white);
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-sm);
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-th, td {
-    padding: 1rem 1.5rem;
-    text-align: right;
-    border-bottom: 1px solid var(--gray-light);
-}
-
-th {
-    background-color: #f8f9fa;
+.form-group label {
+    color: var(--gray-dark);
     font-weight: 600;
 }
 
-tr:hover {
-    background-color: #f8f9fa;
+.form-group input {
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
 }
 
-/* حالات نقاط البيع */
-.status-badge {
-    padding: 0.25rem 0.75rem;
-    border-radius: 50px;
+.form-group input:focus {
+    border-color: var(--primary-green);
+    outline: none;
+}
+
+.btn-login {
+    background-color: var(--primary-green);
+    color: var(--white);
+    padding: 0.75rem;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-login:hover {
+    background-color: var(--dark-green);
+}
+
+.error-message {
+    color: var(--red);
+    text-align: center;
     font-size: 0.875rem;
-    font-weight: 500;
+    min-height: 20px;
 }
-
-.status-active {
-    background-color: #e8f5e9;
-    color: #2e7d32;
-}
-
-.status-warning {
-    background-color: #fff3e0;
-    color: #f57c00;
-}
-
-.status-critical {
-    background-color: #ffebee;
-    color: #c62828;
-}
-
-/* التنبيهات */
-.notification-container {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 1000;
-}
-
-.notification-item {
-    background-color: var(--white);
-    border-radius: var(--radius-sm);
-    padding: 1rem;
-    margin-bottom: 0.5rem;
-    box-shadow: var(--shadow-md);
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    min-width: 300px;
-}
-
-/* Loading Spinner */
-.spinner {
-    width: 24px;
-    height: 24px;
-    border: 3px solid var(--gray-light);
-    border-top-color: var(--primary-green);
-    border-radius: 50%;
-    animation: rotate 1s linear infinite;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .sidebar {
-        position: fixed;
-        right: -250px;
-        top: 0;
-        height: 100vh;
-        z-index: 1000;
-        transition: right 0.3s ease;
-    }
-
-    .sidebar.active {
-        right: 0;
-    }
-
-    .main-content {
-        margin-right: 0;
-    }
-
-    .dashboard-stats {
-        grid-template-columns: 1fr;
-    }
-}
-
-/* Utilities */
-.text-center { text-align: center; }
-.text-right { text-align: right; }
-.text-left { text-align: left; }
-
-.mt-1 { margin-top: 0.5rem; }
-.mt-2 { margin-top: 1rem; }
-.mt-3 { margin-top: 1.5rem; }
-.mt-4 { margin-top: 2rem; }
-
-.mb-1 { margin-bottom: 0.5rem; }
-.mb-2 { margin-bottom: 1rem; }
-.mb-3 { margin-bottom: 1.5rem; }
-.mb-4 { margin-bottom: 2rem; }
