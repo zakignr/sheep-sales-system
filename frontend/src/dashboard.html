@@ -9,10 +9,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/dashboard.css">
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 </head>
-<body>
+<body class="dashboard-body">
     <div class="dashboard-container">
         <!-- القائمة الجانبية -->
         <aside class="sidebar">
@@ -21,16 +19,12 @@
             </div>
             <nav class="sidebar-nav">
                 <ul>
-                    <li class="active"><a href="#"><i class="fas fa-home"></i> الرئيسية</a></li>
-                    <li id="adminMenu" style="display: none;">
-                        <a href="#"><i class="fas fa-users"></i> إدارة المراقبين</a>
-                    </li>
-                    <li id="adminStockMenu" style="display: none;">
-                        <a href="#"><i class="fas fa-sheep"></i> إدارة المخزون</a>
-                    </li>
-                    <li><a href="#"><i class="fas fa-chart-bar"></i> التقارير</a></li>
-                    <li><a href="#"><i class="fas fa-bell"></i> التنبيهات</a></li>
-                    <li><a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> تسجيل الخروج</a></li>
+                    <li class="active"><a href="#overview">الرئيسية</a></li>
+                    <li id="adminMenu" style="display: none;"><a href="#managers">إدارة المراقبين</a></li>
+                    <li id="adminStockMenu" style="display: none;"><a href="#stock">إدارة المخزون</a></li>
+                    <li><a href="#reports">التقارير</a></li>
+                    <li><a href="#notifications">التنبيهات</a></li>
+                    <li><a href="#" id="logoutBtn">تسجيل الخروج</a></li>
                 </ul>
             </nav>
         </aside>
@@ -38,15 +32,12 @@
         <!-- المحتوى الرئيسي -->
         <main class="main-content">
             <header class="main-header">
-                <div class="user-info">
-                    <span id="currentTime"></span>
-                    <span id="userName"></span>
-                </div>
-                <div class="notifications">
-                    <button id="notificationBtn">
-                        <i class="fas fa-bell"></i>
-                        <span class="notification-badge">0</span>
-                    </button>
+                <div class="header-content">
+                    <h1>لوحة التحكم</h1>
+                    <div class="user-info">
+                        <span id="currentTime"></span>
+                        <span class="username" id="userName"></span>
+                    </div>
                 </div>
             </header>
 
@@ -65,12 +56,10 @@
                 </div>
             </div>
 
-            <div class="data-section">
+            <div class="content-section">
                 <div class="section-header">
                     <h2>نقاط البيع النشطة</h2>
-                    <div class="section-actions">
-                        <button class="refresh-btn"><i class="fas fa-sync"></i> تحديث</button>
-                    </div>
+                    <button class="refresh-btn">تحديث البيانات</button>
                 </div>
                 <div class="data-table">
                     <table>
@@ -84,7 +73,7 @@
                             </tr>
                         </thead>
                         <tbody id="salesPointsTable">
-                            <!-- سيتم ملء هذا الجزء عبر JavaScript -->
+                            <!-- سيتم ملء هذا الجزء بواسطة JavaScript -->
                         </tbody>
                     </table>
                 </div>
@@ -92,22 +81,6 @@
         </main>
     </div>
 
-    <!-- نافذة التنبيهات -->
-    <div id="notificationModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>التنبيهات</h2>
-                <span class="close">&times;</span>
-            </div>
-            <div class="modal-body">
-                <div id="notificationsList">
-                    <!-- سيتم ملء هذا الجزء عبر JavaScript -->
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script src="https://kit.fontawesome.com/your-kit-code.js"></script>
     <script src="js/dashboard.js"></script>
 </body>
 </html>
