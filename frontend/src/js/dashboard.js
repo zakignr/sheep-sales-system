@@ -1,112 +1,192 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const loginForm = document.getElementById('loginForm');
-    const errorMessage = document.getElementById('errorMessage');
+    // التحقق من تسجيل الدخول
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    if (!currentUser) {
+        window.location.href = 'index.html';
+        return;
+    }
 
-    // بيانات المستخدمين الفعلية
-    const users = {
-        // الأدمن الرئيسي
-        'admin': {
-            password: 'admin123',
-            role: 'admin',
-            name: 'المدير الرئيسي',
-            id: 1
-        },
-        // المراقبين الأربعة
-        'supervisor1': {
-            password: 'super123',
-            role: 'supervisor',
-            name: 'المراقب الأول',
-            id: 2
-        },
-        'supervisor2': {
-            password: 'super123',
-            role: 'supervisor',
-            name: 'المراقب الثاني',
-            id: 3
-        },
-        'supervisor3': {
-            password: 'super123',
-            role: 'supervisor',
-            name: 'المراقب الثالث',
-            id: 4
-        },
-        'supervisor4': {
-            password: 'super123',
-            role: 'supervisor',
-            name: 'المراقب الرابع',
-            id: 5
-        },
-        // نقاط البيع الثمانية
-        'sale1': {
-            password: 'sale123',
-            role: 'salespoint',
-            name: 'نقطة البيع 1',
-            id: 6
-        },
-        'sale2': {
-            password: 'sale123',
-            role: 'salespoint',
-            name: 'نقطة البيع 2',
-            id: 7
-        },
-        'sale3': {
-            password: 'sale123',
-            role: 'salespoint',
-            name: 'نقطة البيع 3',
-            id: 8
-        },
-        'sale4': {
-            password: 'sale123',
-            role: 'salespoint',
-            name: 'نقطة البيع 4',
-            id: 9
-        },
-        'sale5': {
-            password: 'sale123',
-            role: 'salespoint',
-            name: 'نقطة البيع 5',
-            id: 10
-        },
-        'sale6': {
-            password: 'sale123',
-            role: 'salespoint',
-            name: 'نقطة البيع 6',
-            id: 11
-        },
-        'sale7': {
-            password: 'sale123',
-            role: 'salespoint',
-            name: 'نقطة البيع 7',
-            id: 12
-        },
-        'sale8': {
-            password: 'sale123',
-            role: 'salespoint',
-            name: 'نقطة البيع 8',
-            id: 13
-        }
+    // تحديث اسم المستخدم
+    document.getElementById('userName').textContent = currentUser.name;
+
+    // تهيئة الأحداث
+    initializeEvents();
+    
+    // تحديث الوقت
+    updateCurrentTime();
+    setInterval(updateCurrentTime, 1000);
+
+    // تحميل البيانات الأولية
+    loadDashboardData(currentUser);
+
+    // عرض/إخفاء عناصر القائمة حسب نوع المستخدم
+    updateMenuVisibility(currentUser.role);
+});
+
+function loadDashboardData(currentUser) {
+    // بيانات نقاط البيع
+    const salesPointsData = {
+        points: [
+            {
+                id: 1,
+                name: 'نقطة البيع 1',
+                stock: 45,
+                lastUpdate: '2025-05-02 06:30:00',
+                status: 'active'
+            },
+            {
+                id: 2,
+                name: 'نقطة البيع 2',
+                stock: 32,
+                lastUpdate: '2025-05-02 06:15:00',
+                status: 'active'
+            },
+            {
+                id: 3,
+                name: 'نقطة البيع 3',
+                stock: 28,
+                lastUpdate: '2025-05-02 05:45:00',
+                status: 'warning'
+            },
+            {
+                id: 4,
+                name: 'نقطة البيع 4',
+                stock: 50,
+                lastUpdate: '2025-05-02 06:20:00',
+                status: 'active'
+            },
+            {
+                id: 5,
+                name: 'نقطة البيع 5',
+                stock: 15,
+                lastUpdate: '2025-05-02 03:30:00',
+                status: 'critical'
+            },
+            {
+                id: 6,
+                name: 'نقطة البيع 6',
+                stock: 40,
+                lastUpdate: '2025-05-02 06:00:00',
+                status: 'active'
+            },
+            {
+                id: 7,
+                name: 'نقطة البيع 7',
+                stock: 25,
+                lastUpdate: '2025-05-02 05:00:00',
+                status: 'warning'
+            },
+            {
+                id: 8,
+                name: 'نقطة البيع 8',
+                stock: 35,
+                lastUpdate: '2025-05-02 06:25:00',
+                status: 'active'
+            }
+        ]
     };
 
-    loginForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
+    // تحديث الإحصائيات
+    const totalStock = salesPointsData.points.reduce((sum, point) => sum + point.stock, 0);
+    const pendingUpdates = salesPointsData.points.filter(point => 
+        isUpdateRequired(point.lastUpdate)
+    ).length;
 
-        const user = users[username];
-        if (user && user.password === password) {
-            // تخزين بيانات المستخدم
-            localStorage.setItem('currentUser', JSON.stringify({
-                username,
-                role: user.role,
-                name: user.name,
-                id: user.id,
-                loginTime: new Date().toISOString()
-            }));
-            
-            window.location.href = 'dashboard.html';
-        } else {
-            errorMessage.textContent = 'اسم المستخدم أو كلمة المرور غير صحيحة';
-        }
-    });
-});
+    document.getElementById('totalSalesPoints').textContent = '8'; // العدد الثابت
+    document.getElementById('totalStock').textContent = totalStock;
+    document.getElementById('pendingUpdates').textContent = pendingUpdates;
+
+    // تحديث جدول نقاط البيع
+    updateSalesPointsTable(salesPointsData.points, currentUser);
+}
+
+function isUpdateRequired(lastUpdate) {
+    const lastUpdateTime = new Date(lastUpdate);
+    const currentTime = new Date('2025-05-02 06:34:29'); // الوقت الحالي المحدد
+    const hoursDiff = (currentTime - lastUpdateTime) / (1000 * 60 * 60);
+    return hoursDiff >= 1;
+}
+
+function updateSalesPointsTable(points, currentUser) {
+    const tableBody = document.getElementById('salesPointsTable');
+    
+    // تحديد نقاط البيع التي سيتم عرضها
+    let displayPoints = points;
+    if (currentUser.role === 'salespoint') {
+        // إذا كان المستخدم نقطة بيع، اعرض فقط بياناته
+        displayPoints = points.filter(point => 
+            point.name === currentUser.name
+        );
+    }
+
+    tableBody.innerHTML = displayPoints.map(point => `
+        <tr>
+            <td>${point.name}</td>
+            <td>${point.stock}</td>
+            <td>${formatDateTime(point.lastUpdate)}</td>
+            <td><span class="status status-${point.status}">
+                ${getStatusText(point.status)}
+            </span></td>
+            <td>
+                ${getActionButtons(point, currentUser)}
+            </td>
+        </tr>
+    `).join('');
+}
+
+function getActionButtons(point, currentUser) {
+    if (currentUser.role === 'admin') {
+        return `
+            <button class="btn-action" onclick="editStock(${point.id})">تعديل المخزون</button>
+            <button class="btn-action" onclick="viewHistory(${point.id})">سجل التحديثات</button>
+        `;
+    } else if (currentUser.role === 'supervisor') {
+        return `
+            <button class="btn-action" onclick="viewHistory(${point.id})">سجل التحديثات</button>
+        `;
+    } else {
+        return `
+            <button class="btn-action" onclick="updateStock(${point.id})">تحديث المخزون</button>
+        `;
+    }
+}
+
+function formatDateTime(dateTime) {
+    return new Date(dateTime).toLocaleString('ar-DZ');
+}
+
+function getStatusText(status) {
+    const statusMap = {
+        active: 'نشط',
+        warning: 'تحذير',
+        critical: 'حرج'
+    };
+    return statusMap[status] || status;
+}
+
+function updateMenuVisibility(role) {
+    // إظهار/إخفاء عناصر القائمة حسب الدور
+    const adminOnly = document.querySelectorAll('.admin-only');
+    const supervisorOnly = document.querySelectorAll('.supervisor-only');
+    const salespointOnly = document.querySelectorAll('.salespoint-only');
+
+    adminOnly.forEach(el => el.style.display = role === 'admin' ? 'block' : 'none');
+    supervisorOnly.forEach(el => el.style.display = role === 'supervisor' ? 'block' : 'none');
+    salespointOnly.forEach(el => el.style.display = role === 'salespoint' ? 'block' : 'none');
+}
+
+// وظائف الأحداث
+function editStock(pointId) {
+    console.log('تعديل المخزون لنقطة البيع:', pointId);
+    // سيتم تنفيذها لاحقاً
+}
+
+function viewHistory(pointId) {
+    console.log('عرض سجل التحديثات لنقطة البيع:', pointId);
+    // سيتم تنفيذها لاحقاً
+}
+
+function updateStock(pointId) {
+    console.log('تحديث المخزون لنقطة البيع:', pointId);
+    // سيتم تنفيذها لاحقاً
+}
