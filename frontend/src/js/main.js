@@ -1,22 +1,31 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const loginForm = document.getElementById('loginForm');
-    const errorMessage = document.getElementById('errorMessage');
+// تكوين عنوان API
+const API_BASE_URL = window.location.hostname === 'localhost' 
+  ? 'http://localhost:3000'
+  : 'https://sheep-sales-system.onrender.com';
 
-    loginForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
+// تحديث وظائف الطلبات
+async function makeRequest(endpoint, options = {}) {
+    const defaultOptions = {
+        headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*'
+        },
+        credentials: 'include'
+    };
 
-        // هنا سنضيف لاحقاً التحقق من المستخدم مع الخادم
-        console.log('محاولة تسجيل الدخول:', { username, password });
-        
-        // مثال مؤقت للتحقق
-        if (username === 'admin' && password === 'admin123') {
-            errorMessage.textContent = '';
-            window.location.href = '/dashboard.html';
-        } else {
-            errorMessage.textContent = 'اسم المستخدم أو كلمة المرور غير صحيحة';
+    try {
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+            ...defaultOptions,
+            ...options
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
-    });
-});
+
+        return await response.json();
+    } catch (error) {
+        console.error('API request failed:', error);
+        throw error;
+    }
+}
