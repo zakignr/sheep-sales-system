@@ -3,34 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <title>نظام إدارة بيع الكباش</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/animations.css">
+    <style>
+        :root {
+            --primary-green: #7AB547;
+            --secondary-blue: #0066B3;
+            --dark-green: #0B8142;
+            --white: #FFFFFF;
+            --red: #EF3340;
+            --gray-light: #F5F5F5;
+            --gray-dark: #333333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        body {
+            direction: rtl;
+            background: linear-gradient(135deg, var(--primary-green) 0%, var(--secondary-blue) 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+        }
+
+        .login-card {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .login-logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-logo img {
+            width: 200px;
+            height: auto;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--gray-dark);
+            font-weight: 600;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary-green);
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: var(--primary-green);
+            color: var(--white);
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-login:hover {
+            background-color: var(--dark-green);
+        }
+
+        .error-message {
+            color: var(--red);
+            text-align: center;
+            margin-top: 1rem;
+            min-height: 20px;
+        }
+    </style>
 </head>
 <body>
     <div class="login-container">
         <div class="login-card">
             <div class="login-logo">
-                <img src="assets/images/logo/logo.png" alt="شعار النظام">
-            </div>
-            <form id="loginForm" class="login-form">
-                <div class="form-group">
-                    <label for="username">اسم المستخدم</label>
-                    <input type="text" id="username" name="username" required>
-                </div>
-                <div class="form-group">
-                    <label for="password">كلمة المرور</label>
-                    <input type="password" id="password" name="password" required>
-                </div>
-                <button type="submit" class="btn-login">تسجيل الدخول</button>
-                <div id="errorMessage" class="error-message"></div>
-            </form>
-        </div>
-    </div>
-    <script src="js/main.js"></script>
-</body>
-</html>
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABS3GwHAAAACXBIWXMAAAsTAAALEwEAmpwYAAAF8WlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNy4yLWMwMDAgNzkuMWI2NWE3OWI0LCAyMDIyLzA2LzEzLTIyOjAxOjAxICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdEV2dD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlRXZlbnQjIiB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iIHhtbG5zOnBob3Rvc2hvcD0iaHR0cDovL25zLmFkb2JlLmNvbS9waG90b3Nob3AvMS4wLyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgMjQuMCAoTWFjaW50b3NoKSIgeG1wOkNyZWF0ZURhdGU9IjIwMjUtMDUtMDJUMDY6NDE6NTFaIiB4bXA6TWV0YWRhdGFEYXRlPSIyMDI1LTA1LTAyVDA2OjQxOjUxWiIgeG1wOk1vZGlmeURhdGU9IjIwMjUtMDUtMDJUMDY6NDE6NTFaIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjQ5YjBiMjY5LTRjOTYtNDU5Yi05YzBjLTViNzQwYjBiOWY5YSIgeG1wTU06RG9jdW1lbnRJRD0iYWRvYmU6ZG9jaWQ6cGhvdG9zaG9wOjIyYzFkOTM3LTgwZjYtZTI0Ny05NmE3LWY3NjM0ZDY2NzFk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
