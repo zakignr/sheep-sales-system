@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('loginForm');
     const errorMessage = document.getElementById('errorMessage');
 
-    // بيانات المستخدمين الفعلية
+    // بيانات المستخدمين
     const users = {
         // الأدمن الرئيسي
         'admin': {
@@ -104,7 +104,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 loginTime: new Date().toISOString()
             }));
             
-            window.location.href = 'dashboard.html';
+            // توجيه المستخدم إلى اللوحة المناسبة
+            switch(user.role) {
+                case 'admin':
+                    window.location.href = 'admin-dashboard.html';
+                    break;
+                case 'supervisor':
+                    window.location.href = 'supervisor-dashboard.html';
+                    break;
+                case 'salespoint':
+                    window.location.href = 'salespoint-dashboard.html';
+                    break;
+            }
         } else {
             errorMessage.textContent = 'اسم المستخدم أو كلمة المرور غير صحيحة';
         }
