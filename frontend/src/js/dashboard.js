@@ -1,257 +1,98 @@
-// المتغيرات العامة
-let currentUser = {
-    id: null,
-    username: '',
-    role: '', // 'admin', 'supervisor', 'salespoint'
-    name: ''
-};
-
-let notifications = [];
-
 document.addEventListener('DOMContentLoaded', () => {
     // التحقق من تسجيل الدخول
-    checkAuthentication();
-    
-    // تهيئة الأحداث
-    initializeEventListeners();
-    
-    // تحديث الوقت كل ثانية
-    setInterval(updateCurrentTime, 1000);
-    
-    // تحقق من التحديثات كل ساعة
-    setInterval(checkForUpdates, 3600000);
-    
-    // تحميل البيانات الأولية
-    loadInitialData();
-});
-
-function checkAuthentication() {
-    // التحقق من وجود token في localStorage
-    const token = localStorage.getItem('authToken');
-    if (!token) {
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    if (!currentUser) {
         window.location.href = 'index.html';
         return;
     }
-    
-    // تحميل بيانات المستخدم
-    currentUser = JSON.parse(localStorage.getItem('currentUser'));
+
+    // تحديث اسم المستخدم
     document.getElementById('userName').textContent = currentUser.name;
+
+    // تهيئة الأحداث
+    initializeEvents();
     
+    // تحديث الوقت
+    updateCurrentTime();
+    setInterval(updateCurrentTime, 1000);
+
+    // تحميل البيانات الأولية
+    loadDashboardData();
+
     // عرض/إخفاء عناصر القائمة حسب نوع المستخدم
-    updateMenuVisibility();
-}
+    updateMenuVisibility(currentUser.role);
+});
 
-function updateMenuVisibility() {
-    const adminElements = document.querySelectorAll('.admin-only');
-    const supervisorElements = document.querySelectorAll('.supervisor-only');
-    const salespointElements = document.querySelectorAll('.salespoint-only');
-    
-    adminElements.forEach(el => {
-        el.style.display = currentUser.role === 'admin' ? 'block' : 'none';
-    });
-    
-    supervisorElements.forEach(el => {
-        el.style.display = currentUser.role === 'supervisor' ? 'block' : 'none';
-    });
-    
-    salespointElements.forEach(el => {
-        el.style.display = currentUser.role === 'salespoint' ? 'block' : 'none';
-    });
-}
-
-function initializeEventListeners() {
+function initializeEvents() {
     // زر تسجيل الخروج
-    document.getElementById('logoutBtn').addEventListener('click', handleLogout);
-    
-    // زر التنبيهات
-    document.getElementById('notificationBtn').addEventListener('click', toggleNotifications);
-    
+    document.getElementById('logoutBtn').addEventListener('click', (e) => {
+        e.preventDefault();
+        localStorage.removeItem('currentUser');
+        window.location.href = 'index.html';
+    });
+
     // زر تحديث البيانات
-    document.querySelector('.refresh-btn').addEventListener('click', refreshData);
-    
-    // إغلاق النافذة المنبثقة للتنبيهات
-    document.querySelector('.modal .close').addEventListener('click', () => {
-        document.getElementById('notificationModal').style.display = 'none';
+    document.querySelector('.refresh-btn').addEventListener('click', () => {
+        loadDashboardData();
     });
 }
 
 function updateCurrentTime() {
     const now = new Date();
-    const options = {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false
-    };
-    
-    document.getElementById('currentTime').textContent = now.toLocaleString('ar-DZ', options);
+    const timeString = now.toLocaleTimeString('ar-DZ');
+    const dateString = now.toLocaleDateString('ar-DZ');
+    document.getElementById('currentTime').textContent = `${dateString} ${timeString}`;
 }
 
-function checkForUpdates() {
-    const salesPoints = getSalesPoints();
-    const now = new Date();
-    
-    salesPoints.forEach(point => {
-        const lastUpdate = new Date(point.lastUpdate);
-        const hoursSinceUpdate = (now - lastUpdate) / (1000 * 60 * 60);
-        
-        // تحديث كل ساعة
-        if (hoursSinceUpdate >= 1) {
-            createNotification({
-                type: 'reminder',
-                title: 'تذكير بالتحديث',
-                message: `يرجى تحديث بيانات نقطة البيع: ${point.name}`,
-                salesPoint: point.id,
-                severity: 'low'
-            });
-        }
-        
-        // تأخر التحديث لمدة ساعتين
-        if (hoursSinceUpdate >= 2) {
-            createNotification({
-                type: 'warning',
-                title: 'تأخر التحديث',
-                message: `لم يتم تحديث بيانات نقطة البيع: ${point.name} منذ ساعتين`,
-                salesPoint: point.id,
-                severity: 'medium'
-            });
-        }
-        
-        // تأخر التحديث لمدة 3 ساعات
-        if (hoursSinceUpdate >= 3) {
-            createNotification({
-                type: 'alert',
-                title: 'تنبيه عاجل',
-                message: `تأخر حرج في تحديث بيانات نقطة البيع: ${point.name}`,
-                salesPoint: point.id,
-                severity: 'high'
-            });
-        }
+function updateMenuVisibility(role) {
+    const adminElements = document.querySelectorAll('#adminMenu, #adminStockMenu');
+    adminElements.forEach(el => {
+        el.style.display = role === 'admin' ? 'block' : 'none';
     });
 }
 
-function createNotification(notificationData) {
-    const notification = {
-        id: Date.now(),
-        timestamp: new Date().toISOString(),
-        ...notificationData,
-        read: false
+function loadDashboardData() {
+    // بيانات تجريبية
+    const mockData = {
+        totalSalesPoints: 5,
+        totalStock: 150,
+        pendingUpdates: 2,
+        salesPoints: [
+            {
+                name: 'نقطة البيع 1',
+                stock: 30,
+                lastUpdate: '2025-05-02 05:30:00',
+                status: 'active'
+            },
+            {
+                name: 'نقطة البيع 2',
+                stock: 25,
+                lastUpdate: '2025-05-02 04:15:00',
+                status: 'warning'
+            }
+        ]
     };
-    
-    notifications.unshift(notification);
-    updateNotificationBadge();
-    showToast(notification);
-    
-    // إرسال التنبيه للمستخدمين المعنيين
-    sendNotificationToUsers(notification);
-}
 
-function showToast(notification) {
-    const backgroundColor = {
-        low: '#7AB547',
-        medium: '#FFA500',
-        high: '#EF3340'
-    }[notification.severity];
-    
-    Toastify({
-        text: notification.message,
-        duration: 5000,
-        gravity: "top",
-        position: 'right',
-        backgroundColor,
-        onClick: () => showNotificationDetails(notification)
-    }).showToast();
-}
+    // تحديث الإحصائيات
+    document.getElementById('totalSalesPoints').textContent = mockData.totalSalesPoints;
+    document.getElementById('totalStock').textContent = mockData.totalStock;
+    document.getElementById('pendingUpdates').textContent = mockData.pendingUpdates;
 
-function updateNotificationBadge() {
-    const unreadCount = notifications.filter(n => !n.read).length;
-    const badge = document.querySelector('.notification-badge');
-    badge.textContent = unreadCount;
-    badge.style.display = unreadCount > 0 ? 'block' : 'none';
-}
-
-function toggleNotifications() {
-    const modal = document.getElementById('notificationModal');
-    if (modal.style.display === 'block') {
-        modal.style.display = 'none';
-    } else {
-        updateNotificationsList();
-        modal.style.display = 'block';
-    }
-}
-
-function updateNotificationsList() {
-    const container = document.getElementById('notificationsList');
-    container.innerHTML = notifications
-        .map(notification => `
-            <div class="notification-item ${notification.read ? 'read' : 'unread'}" 
-                 data-id="${notification.id}">
-                <div class="notification-header">
-                    <span class="notification-title">${notification.title}</span>
-                    <span class="notification-time">
-                        ${new Date(notification.timestamp).toLocaleString('ar-DZ')}
-                    </span>
-                </div>
-                <div class="notification-message">${notification.message}</div>
-            </div>
-        `)
-        .join('');
-}
-
-function handleLogout() {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('currentUser');
-    window.location.href = 'index.html';
-}
-
-function refreshData() {
-    loadSalesPointsData();
-    loadStockData();
-    showToast({
-        message: 'تم تحديث البيانات بنجاح',
-        severity: 'low'
-    });
-}
-
-// وظائف مساعدة للتعامل مع البيانات
-function getSalesPoints() {
-    // في الإصدار النهائي، هذه الوظيفة ستجلب البيانات من الخادم
-    return JSON.parse(localStorage.getItem('salesPoints')) || [];
-}
-
-function loadInitialData() {
-    loadSalesPointsData();
-    loadStockData();
-    loadNotifications();
-}
-
-function loadSalesPointsData() {
-    const salesPoints = getSalesPoints();
+    // تحديث جدول نقاط البيع
     const tableBody = document.getElementById('salesPointsTable');
-    
-    tableBody.innerHTML = salesPoints
-        .map(point => `
-            <tr>
-                <td>${point.name}</td>
-                <td>${point.currentStock}</td>
-                <td>${new Date(point.lastUpdate).toLocaleString('ar-DZ')}</td>
-                <td>
-                    <span class="status-badge ${point.status}">
-                        ${getStatusText(point.status)}
-                    </span>
-                </td>
-                <td>
-                    <button onclick="viewDetails(${point.id})" class="action-btn">
-                        عرض التفاصيل
-                    </button>
-                </td>
-            </tr>
-        `)
-        .join('');
+    tableBody.innerHTML = mockData.salesPoints.map(point => `
+        <tr>
+            <td>${point.name}</td>
+            <td>${point.stock}</td>
+            <td>${point.lastUpdate}</td>
+            <td><span class="status status-${point.status}">
+                ${getStatusText(point.status)}
+            </span></td>
+            <td>
+                <button class="btn-action">عرض التفاصيل</button>
+            </td>
+        </tr>
+    `).join('');
 }
 
 function getStatusText(status) {
@@ -261,27 +102,4 @@ function getStatusText(status) {
         critical: 'حرج'
     };
     return statusMap[status] || status;
-}
-
-function loadStockData() {
-    const salesPoints = getSalesPoints();
-    document.getElementById('totalSalesPoints').textContent = salesPoints.length;
-    document.getElementById('totalStock').textContent = salesPoints.reduce((sum, point) => sum + point.currentStock, 0);
-    document.getElementById('pendingUpdates').textContent = salesPoints.filter(point => {
-        const lastUpdate = new Date(point.lastUpdate);
-        const now = new Date();
-        return (now - lastUpdate) / (1000 * 60 * 60) >= 1;
-    }).length;
-}
-
-function viewDetails(pointId) {
-    // سيتم تنفيذها لاحقاً
-    console.log('عرض تفاصيل نقطة البيع:', pointId);
-}
-
-// تهيئة النظام عند بدء التشغيل
-function initializeDashboard() {
-    checkAuthentication();
-    loadInitialData();
-    updateCurrentTime();
 }
